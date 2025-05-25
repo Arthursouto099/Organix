@@ -8,8 +8,8 @@ export default class ProjectController {
 
     public static async createProject(req: Request, res:  Response) {
         try{
-            const {name, description, status, userId} = req.body
-            await prisma.project.create({data: {name, description, status, userId}})
+            const {name, description, status, userId, priority} = req.body
+            await prisma.project.create({data: {name, description, status, userId, priority}})
             res.status(201).json({message: "Projeto criado com sucesso"})
 
 
@@ -22,6 +22,18 @@ export default class ProjectController {
         }
     }
 
+
+    public static async deleteProject(req: Request, res: Response) {
+        try {
+            await prisma.projectAssignment.deleteMany({where: {projectId: req.params.id}})
+            await prisma.project.delete({where: {id: req.params.id}})
+            res.status(200).json({message: "Projeto deletado com sucesso"})
+        }
+          catch(e: unknown) {
+            console.log(e)
+            res.status(500).json({message: "Internal Error"})
+        }
+    }
 
     public static async updateProject(req: Request, res: Response) {
         try {

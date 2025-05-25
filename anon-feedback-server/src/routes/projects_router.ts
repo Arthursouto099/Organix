@@ -9,6 +9,7 @@ projects_router.get("/projects/:id", ProjectController.findProjects)
 projects_router.post("/projects/:id", ProjectController.addLabel)
 projects_router.get("/project/:projectId", ProjectController.findProject)
 projects_router.put("/:id", ProjectController.updateProject)
+projects_router.delete("/:id", ProjectController.deleteProject)
 
 
 export default projects_router          

@@ -10,6 +10,8 @@ import { isUser } from "../services/api"
 import ModalGetCollaborator from "../components/getCollaborators"
 import Checklist from "../components/CheckList"
 import { deleteAssignment } from "../services/assignments_api"
+import { deleteProject } from "../services/projects_api"
+import {toast} from 'react-toastify';
 
 
 
@@ -159,13 +161,14 @@ export default function DashBoard() {
         <ModalFormProject onClose={() => {
           setModalCreate(false)
           isList(decoded.userId)
+    
 
-        }} userId={decoded.userId} isOpen={isCreateModalProject} />
+        }} userId={decoded.userId} isOpen={isCreateModalProject}  />
       }
 
 
       {
-        isQueryModal.status ? (<QueryCollaborators isOpen={isQueryModal.status} onClose={() => { setQueryModal({ status: false, projectId: "" }); isList(decoded.userId) }} projectId={isQueryModal.projectId} />) : null
+        isQueryModal.status ? (<QueryCollaborators isOpen={isQueryModal.status} onClose={() => { setQueryModal({ status: false, projectId: "" }); isList(decoded.userId)} } projectId={isQueryModal.projectId} />) : null
       }
 
 
@@ -273,9 +276,9 @@ export default function DashBoard() {
                           <button
                             className="px-3 py-1 text-sm text-white bg-red-500 hover:bg-red-600 rounded-md transition"
                             onClick={async () => {
-                              alert("click")
                               await deleteAssignment(a.id)
                               isList(decoded.userId)
+                              toast.success("Task deletada com sucesso")
                             }}
                           >
                             Cancelar
@@ -366,12 +369,18 @@ export default function DashBoard() {
               </button>
               <button
                 className="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded-md text-sm transition-all"
+                onClick={async () => {
+                 await deleteProject(p.id)
+                 await isList(decoded.userId)
+                 toast.success("Projeto deletado com sucesso")
+                }}
               >
                 Excluir projeto
               </button>
               <button
                 className="w-full sm:w-auto bg-purple-500 hover:bg-purple-600 text-white font-medium px-4 py-2 rounded-md text-sm transition-all"
                 onClick={() => setQueryModal({ status: true, projectId: p.id })}
+                
               >
                 Adicionar colaborador
               </button>

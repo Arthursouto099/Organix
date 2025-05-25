@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createRelationCollaborator } from '../services_routes/findAssignments';
 import { updateAssignment } from '../services/assignments_api';
+import { toast } from 'react-toastify';
 
 interface ModalProps {
   isOpen: boolean;
@@ -41,10 +42,10 @@ const ModalGetCollaborator: React.FC<ModalProps> = ({ isOpen, onClose, projectId
         const result = await updateAssignment(taskId, task, description, deadline, status)
         
       if (result !== null) {
-        alert('Colaborador editado/vinculado com sucesso!');
-        onClose();
+         onClose()
+         toast.success("Colaborado vinculado/editado com sucesso")
       } else {
-        alert('Erro ao vincular colaborador.');
+        toast.error("Erro ao vincular o colaborado")
       }
       }
 
@@ -58,10 +59,10 @@ const ModalGetCollaborator: React.FC<ModalProps> = ({ isOpen, onClose, projectId
       const result = await createRelationCollaborator(projectId, userId, task, description, deadline);
 
       if (result.status) {
-        alert('Colaborador vinculado com sucesso!');
+        toast.success("Colaborado vinculado/editado com sucesso")
         onClose();
       } else {
-        alert('Erro ao vincular colaborador.');
+        toast.error("Erro ao vincular o colaborado")
       }
     }
 

@@ -2,6 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { isUpdated } from "../services/api";
 import { createProject } from "../services/projects_api";
+import { toast } from "react-toastify";
  // lembra que se for adicionar algo novo adicione aqui prioritariamente
 type ProjectFormData = {
   name: string;
@@ -46,11 +47,13 @@ export const ModalFormProject: React.FC<ModalFormProjectProps> = ({
     if(projectId) {
       await isUpdated(projectId, form)
       onClose()
+      toast.success("Projeto editado com sucesso")
     }
 
     else {
-      await createProject(form.name, form.description, userId)
+      await createProject(form.name, form.description, userId, form.status, form.priority)
       onClose()
+      toast.success("Projeto criado com sucesso")
     }
 
      
