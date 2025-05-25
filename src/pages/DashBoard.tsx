@@ -55,7 +55,7 @@ export default function DashBoard() {
   // const [modal, setModal] = useState(false)
   const token = localStorage.getItem("token")
   const decoded = decodeJWT(token as string)
-
+  console.log(decoded.userId)
 
 
 
@@ -68,7 +68,9 @@ export default function DashBoard() {
   console.log(projects)
 
   const isList = async (userId: string) => {
+  
     const list: ProjectCard[] = await isListProjects(userId)
+    console.log(list)
     for (const i of list) {
       console.log(i.id)
       i.assignments = await isAssignments(i.id);
@@ -220,12 +222,12 @@ export default function DashBoard() {
                         <div className="flex items-center gap-2 mt-2">
                           <p className="text-sm text-gray-500">Status do projeto:</p>
                           <span className={`text-xs px-2 py-1 rounded-full font-medium
-    ${p.status === "COMPLETO"
+    ${a.status === "COMPLETO"
                               ? "bg-green-100 text-green-800"
-                              : p.status === "EM_PROGRESSO"
+                              : a.status === "EM_PROGRESSO"
                                 ? "bg-yellow-100 text-yellow-800"
                                 : "bg-red-100 text-red-800"}`}>
-                            {p.status}
+                            {a.status}
                           </span>
                         </div>
                         <div className="flex justify-between items-center">

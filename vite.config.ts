@@ -10,9 +10,7 @@ export default defineConfig({
     port: 5174,
     strictPort: true,
     cors: true,
-    allowedHosts: [
-      'a791-2804-2a4c-111f-7900-dc72-6e9a-9234-b05e.ngrok-free.app'
-    ],
+    allowedHosts: true,
     middlewareMode: false, // ⚠️ garante que Vite use o middleware normalmente
   },
   // Use configurePreview para fallback quando necessário via `vite preview`
