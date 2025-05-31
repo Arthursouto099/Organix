@@ -19,7 +19,7 @@ export default function Menu() {
     {/* Menu de amigos - largura total */}
     <nav className="w-full border-b border-gray-200">
       <ul className="flex justify-center sm:justify-start gap-6 px-4 py-3 text-gray-700 text-sm sm:text-base font-medium">
-        {["Amigos", "Solicitações", "Procurar"].map((label, i) => (
+        {["Amigos", "Solicitações", "Procurar", ].map((label, i) => (
           <li key={i}>
             <button className="hover:text-green-600 transition-colors cursor-pointer" onClick={navigate_friends}>{label}</button>
           </li>
@@ -32,14 +32,7 @@ export default function Menu() {
     </div>
   
     {/* Botões de ação */}
-    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 px-4 pb-4">
-      {/* <button className="bg-green-600 text-white px-4 py-2 rounded-lg w-full sm:w-auto hover:bg-green-700 transition">
-        + Novo projeto
-      </button>
-      <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg w-full sm:w-auto hover:bg-gray-200 transition">
-        Importar
-      </button> */}
-    </div>
+  
   
   </div>
   

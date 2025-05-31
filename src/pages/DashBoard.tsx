@@ -57,7 +57,7 @@ export default function DashBoard() {
   // const [modal, setModal] = useState(false)
   const token = localStorage.getItem("token")
   const decoded = decodeJWT(token as string)
-  console.log(decoded.userId)
+  
 
 
 
@@ -72,11 +72,8 @@ export default function DashBoard() {
   const isList = async (userId: string) => {
   
     const list: ProjectCard[] = await isListProjects(userId)
-    console.log(list)
     for (const i of list) {
-      console.log(i.id)
       i.assignments = await isAssignments(i.id);
-      console.log(i)
     }
     setProjects(list)
   }
@@ -84,7 +81,6 @@ export default function DashBoard() {
   const isAssignments = async (projectId: string) => {
     const assignments: RelationCollaborators[] = await isAssignmentList(projectId);
     for (const a of assignments) {
-      console.log("TASK GERADA:" + " " + a.task)
 
       const { name } = await isUser(a.userId)
       a.nameCollaborator = name
@@ -178,8 +174,7 @@ export default function DashBoard() {
         }} />) : null
       }
 
-
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4">
+      {projects.length > 0 ? ( <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4">
         {projects.slice().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((p) => (
           <div key={p.id} className="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 flex flex-col gap-4 w-full h-full transition hover:shadow-md">
 
@@ -388,7 +383,25 @@ export default function DashBoard() {
           </div>
 
         ))}
-      </div>
+      </div>) : (<div className=" min-h-[500px] flex flex-col items-center justify-center gap-2 text-center text-gray-400 p-6 border m-4 border-gray-200 rounded-md bg-gray-50 ">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8 text-gray-300"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <p className="text-sm font-medium">Nenhum projeto atribuído</p>
+                  <p className="text-xs">Você pode adicionar tarefas usando o botão a cima</p>
+                </div>)}
+     
 
 
     </div>

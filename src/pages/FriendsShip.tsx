@@ -4,7 +4,9 @@ import { isListReceived, isAcceptRequest, isListAccepted } from "../services/api
 import Menu_Friends from "../components/menu_friends"
 import decodeJWT from "../services/decodeJwt";
 import Message from "../components/message";
-
+import CollaboratorIdModal from "../components/SendRequestModal";
+import { toast } from "react-toastify";
+import { findRequesters } from "../services/relations_api";
 
 export interface Relation {
     id: string,
@@ -16,6 +18,7 @@ export interface Relation {
     relationId: string
 }
 
+
 export default function FriendsShip() {
     const [received, setReceived] = useState<Relation[]>([])
     const [accept, setAccept] = useState(false)
@@ -23,9 +26,9 @@ export default function FriendsShip() {
     const token = localStorage.getItem("token")
     const decoded = decodeJWT(token as string)
     const [selectedField, setSelectedField] = useState("");
-
-
-
+    const [sendModal, setSendModal] = useState(false)
+    
+    console.log(decoded.userId)
     useEffect(() => {
         isList(decoded.userId)
 
@@ -34,25 +37,44 @@ export default function FriendsShip() {
 
 
 
-    
 
-    const options = ["Solicitações", "Colaboradores", "Negadas"];
+
+    const options = ["Solicitações recebidas", "Colaboradores", "Negadas", "Enviar Solicitação", "Solicitações enviadas"];
 
     const handleClick = (label: string) => {
         setSelectedField(label);
         isList(decoded.userId, label)
-        
+
         // Aqui você pode trocar de aba, filtrar dados, etc
     };
 
 
     const isList = async (userId: string, label?: string) => {
         // setando os recebidos pelo id de usuario
-        if(label) {
-            if(label === options[1]) {
+        if (label) {
+            if (label === options[1]) {
                 const receivedById: Relation[] = await isListAccepted(userId)
                 setCollaborator(true)
                 setReceived(receivedById)
+                return
+            }
+
+            if(label === options[2]) {
+                setReceived([])
+                return
+            }
+
+            if (label === options[3]) {
+                setReceived([])
+                setSendModal(true)
+                return
+               
+            }
+
+            if(label === options[4]) {
+                const receivedById = await findRequesters(userId)
+                setCollaborator(false)
+                setReceived(receivedById.data)
                 return
             }
         }
@@ -65,6 +87,7 @@ export default function FriendsShip() {
         const response = await isAcceptRequest(relationId);
         if (response.length > 1) {
             setAccept(true)
+            toast.success("Solicitação aceita com sucesso")
             isList(decoded.userId)
 
         }
@@ -89,6 +112,8 @@ export default function FriendsShip() {
 
 
             <Menu_Friends />
+
+            <CollaboratorIdModal isOpen={sendModal} onClose={() => setSendModal(false)}></CollaboratorIdModal>
 
 
 
@@ -115,8 +140,8 @@ export default function FriendsShip() {
                 {received.map((r) => (
                     <div key={r.relationId} className="bg-white border border-gray-200 rounded-xl shadow-md shadow-gray-200 p-4 flex flex-col gap-2">
                         {isCollaborator ? (
-                             <span className={`text-xs w-fit px-2 py-1 rounded-full font-medium bg-green-400 text-gray-100`}>COLABORADOR</span>
-                        ) :  <span className={`text-xs w-fit px-2 py-1 rounded-full font-medium bg-orange-400 text-gray-100`}>ESPERANDO RESPOSTA</span> }
+                            <span className={`text-xs w-fit px-2 py-1 rounded-full font-medium bg-green-400 text-gray-100`}>COLABORADOR</span>
+                        ) : <span className={`text-xs w-fit px-2 py-1 rounded-full font-medium bg-orange-400 text-gray-100`}>ESPERANDO RESPOSTA</span>}
                         <div className="text-sm text-gray-500">ID: {r.relationId}</div>
                         <h2 className="font-bold text-lg text-gray-800">{r.email}</h2>
                         <p className="text-sm text-gray-600">{r.name}</p>
@@ -126,13 +151,17 @@ export default function FriendsShip() {
 
 
 
-                        {isCollaborator ? null : (
-                             <div className="flex">
-                             <button className="mr-2 bg-green-400 text-white font-semibold p-1 rounded-md cursor-pointer transition-all duration-300 transform hover:scale-105" onClick={() => isAccept(r.relationId)}>Aceitar</button>
-                             <button className="mr-2 bg-red-400 text-white font-semibold p-1 rounded-md cursor-pointer transition-all duration-300 transform hover:scale-105">Negar</button>
-                         </div>
+                        {isCollaborator || r.requesterId ===  decoded.userId ?  null : (
+                            <div className="flex">
+                                <button className="mr-2 bg-green-400 text-white font-semibold p-1 rounded-md cursor-pointer transition-all duration-300 transform hover:scale-105" onClick={() => isAccept(r.relationId)}>Aceitar</button>
+                                <button className="mr-2 bg-red-400 text-white font-semibold p-1 rounded-md cursor-pointer transition-all duration-300 transform hover:scale-105">Negar</button>
+                            </div>
                         )}
+                     
+                            
+                            
                        
+
                     </div>
 
                 ))}

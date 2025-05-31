@@ -6,11 +6,6 @@ export default function Menu_Friends() {
 
 
 
-  
-
-
-
-
   return (
     <div className="bg-white border border-gray-100 rounded-xl shadow-sm w-full  mx-auto">
 

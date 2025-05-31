@@ -40,7 +40,7 @@ export  async function findAccepts(id: string) {
 }
 
 export async function acceptRequest(id:string) {
-    const request = await fetch(`$${import.meta.env.VITE_API_URL}/relations/accept/${id}`, {
+    const request = await fetch(`${import.meta.env.VITE_API_URL}/relations/accept/${id}`, {
         method: "PUT",
         headers: {
             'Content-Type': 'application/json'
