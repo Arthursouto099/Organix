@@ -10,13 +10,13 @@ export default async function isValidToken(tryLogin: isLogin) {
     const isValidToken_object = await isToken(tryLogin);
 
     if(isValidToken_object.token !== "Token não fornecido") {
-        alert(isValidToken_object.token)
+        
         return {
             status: true,
             token: isValidToken_object.token
         }
     }
-    alert(isValidToken_object.token)
+  
     return {
         status: false,
         token: "Token não fornecido"

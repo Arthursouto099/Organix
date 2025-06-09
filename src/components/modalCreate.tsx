@@ -66,6 +66,7 @@ export const ModalFormProject: React.FC<ModalFormProjectProps> = ({
   if (!isOpen) return null;
 
   return (
+     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"> 
     <div className="fixed inset-0 z-50 bg-transparent flex items-center justify-center">
       <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 overflow-y-auto max-h-screen ">
         <h2 className="text-xl font-bold mb-4">
@@ -132,6 +133,7 @@ export const ModalFormProject: React.FC<ModalFormProjectProps> = ({
           </div>
         </form>
       </div>
+    </div>
     </div>
   );
 };

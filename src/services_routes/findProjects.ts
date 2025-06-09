@@ -21,9 +21,12 @@ export async function findProjects(id: string) {
 
 }
 
-export async function findProject(projectId: string) {
+export async function findProject(projectId: string): Promise<ProjectCard | null> {
     const request = await fetch(`${import.meta.env.VITE_API_URL}/project/project/${projectId}`)
+    
     const response = await request.json()
+    console.log("hjvadjhefbjhkfebjk")
+    console.log(response.data)
     if(request.ok) return response.data
     return null
 }   

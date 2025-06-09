@@ -11,4 +11,5 @@ relations_router.get("/collaborators/:recipientId", RelationsController.findAcce
 relations_router.get("/collaborators/requesters/:requesterId", RelationsController.findRequesters)
 
 
+
 export default relations_router

@@ -13,7 +13,7 @@ export default function ChecklistFromAssignments({ assignments }: Props) {
     if (assignments && assignments.length > 0) {
       const formatted = assignments.map((a) => ({
         id: a.id,
-        text: `${a.task} ${a.nameCollaborator ? '— ' + a.nameCollaborator : ''}`,
+        text: `${a.task} ${a.nameCollaborator ? '— ' + a.nameCollaborator : ''}  `,
         done: a.status === 'COMPLETO',
         deadline: a.assignedAt
       }));
@@ -30,9 +30,10 @@ export default function ChecklistFromAssignments({ assignments }: Props) {
   };
 
   return (
-    <div className=" bg-white rounded-xl  shadow max-w-md p-5 m-3">
+    <div className=" bg-white rounded-xl shadow max-w-md p-5 m-3 ">
       <h2 className="text-lg font-bold text-gray-800 mb-2">Checklist de Tarefas</h2>
-      <ul className="space-y-2">
+     <ul className="space-y-2 ">
+
         {items.length > 0 ? (
           items.slice().sort((a, b) => new Date(b.deadline).getTime() - new Date(a.deadline).getTime()).map((item) => (
             <li

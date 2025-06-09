@@ -4,7 +4,8 @@ import {  useNavigate } from "react-router-dom";
 import { FormEvent,  useState } from "react";
 import "../styles/tailwind.css"
 import isValidToken from "../services/api";
-import Message from "../components/message";
+import { toast } from "react-toastify";
+
 
 
 
@@ -12,7 +13,7 @@ import Message from "../components/message";
 export default  function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [messageType, setMessageType] = useState({message: '', type: ''});
+
 
   const navigate = useNavigate()
 
@@ -21,16 +22,16 @@ export default  function Login() {
     const success = await isValidToken({email, password});
 
     if(success.status) {
-      setMessageType({message: "Usuario logado com sucesso", type: "success"})
+      toast.success("Login realizado com sucesso!")
       localStorage.setItem("token", success.token);
       setTimeout(() => {
         navigate("/DashBoard")
-      }, 3000)
+      }, 1000)
       
       
     }
     else {
-      setMessageType({message: "Erro ao fazer login", type: "error"})
+      toast.error("E-mail ou senha incorretos!")
       setPassword("")
       setEmail("")
     }
@@ -48,23 +49,7 @@ export default  function Login() {
 
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
   
-    {messageType.type === "success" ? (
-      <Message
-        type="success"
-        text="Login realizado com sucesso"
-        duration={2000}
-        onClose={() => setMessageType({ message: "", type: "" })}
-      />
-    ) : null}
-  
-    {messageType.type === "error" && (
-      <Message
-        type="error"
-        text="Erro ao fazer login"
-        duration={2000}
-        onClose={() => setMessageType({ message: "", type: "" })}
-      />
-    )}
+
   
     <div className="bg-stone-900 p-6 shadow-xl w-full max-w-sm rounded-2xl">
       

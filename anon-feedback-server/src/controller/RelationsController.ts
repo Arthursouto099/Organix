@@ -5,6 +5,7 @@ import prisma from "../client";
 
 
 
+
 export default class RelationsController {
 
 
@@ -71,6 +72,30 @@ export default class RelationsController {
             console.log(e)
             res.status(500).json({ message: "Erro Interno" })
         }
+
+    }
+
+
+    public static async findUserCollaborations(req: Request, res: Response) {
+        
+
+
+        try {
+            const relations = await prisma.projectAssignment.findMany({
+                where: { userId: req.params.userId }, 
+            })
+
+             res.status(200).json({ data: relations })
+
+            
+        }
+
+        catch (e: unknown) {
+            console.log(e)
+            res.status(500).json({ message: "Erro Interno" })
+        }
+
+
 
     }
 

@@ -16,8 +16,8 @@ export class AssignmentController {
         // assignedAt: "assignedAt";
         // deadline: "deadline";
         try {
-            const {userId, task, description, deadline} = req.body
-            await prisma.projectAssignment.create({data: {projectId: req.params.projectId,userId, task, description, deadline}})
+            const {userId, task, description, deadline, creatorId} = req.body
+            await prisma.projectAssignment.create({data: {projectId: req.params.projectId,userId, task, description, deadline, creatorId}})
             res.status(201).json({message: "Relação colaborador criada com sucesso"})
         }
         catch(e: unknown) {
@@ -48,6 +48,30 @@ export class AssignmentController {
             console.log(e)
             res.status(500).json({message: "Erro interno"})
         }
+
+
+    }
+
+    
+    public static async findUserCollaborations(req: Request, res: Response) {
+        
+
+
+        try {
+            const relations = await prisma.projectAssignment.findMany({
+                where: { userId: req.params.userId }, 
+            })
+
+             res.status(200).json({ data: relations })
+
+            
+        }
+
+        catch (e: unknown) {
+            console.log(e)
+            res.status(500).json({ message: "Erro Interno" })
+        }
+
 
 
     }

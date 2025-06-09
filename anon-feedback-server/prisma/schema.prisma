@@ -21,13 +21,18 @@ model User {
   email     String     @unique
   password  String
   createdAt DateTime   @default(now())
+  profile_image Bytes?
+  role String? @default("Não definido")
   projects Project[]
   // relação de requisições que o user faz
   sentRequests     Friendship[] @relation("RequestingUser")
   // relação de requisições que o user recebe
   receivedRequests Friendship[] @relation("ReceivingUser")
 
-  ProjectAssignment ProjectAssignment[]
+  createdAssignments ProjectAssignment[] @relation("CreatorAssignments")
+
+  // Inverso da relação para quem foi atribuído
+  receivedAssignments ProjectAssignment[] @relation("AssignedUser")
 }
 
 
@@ -75,15 +80,17 @@ enum PriorityStatus {
   CRITICA
   ALTA
   NORMAL
-}
+} 
 
 
 model  ProjectAssignment {
   id String @id @default(uuid())
+  creator     User?     @relation("CreatorAssignments", fields: [creatorId], references: [id])
+  creatorId   String?
   project Project @relation(fields: [projectId], references: [id])
   projectId String
-  user User @relation(fields: [userId], references: [id])
-  userId String
+  user        User     @relation("AssignedUser", fields: [userId], references: [id])
+  userId      String
   status ProjectStatus @default(EM_PROGRESSO)
   task String
   description String
