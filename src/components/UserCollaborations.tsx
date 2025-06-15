@@ -14,10 +14,14 @@ import {
 import { RelationCollaborators } from "../pages/DashBoard"
 import { findUser } from "../services_routes/useAuth"
 import ModalGetCollaborator from "./getCollaborators"
-import { deleteAssignment, findUserCollaborations } from "../services/assignments_api"
+import { findUserCollaborations } from "../services/assignments_api"
 import decodeJWT from "../services/decodeJwt"
 import { findProject } from "../services_routes/findProjects"
-import { toast } from "react-toastify"
+// import { toast } from "react-toastify"
+import { getAllObservationsByTaskId } from "../services/observations_api"
+import { Observation } from "../pages/DashBoard"
+import { user } from "../services_routes/useAuth"
+import ObservationModal from "./ObservationModal"
 
 const decoded = decodeJWT(localStorage.getItem("token") as string)
 
@@ -27,6 +31,9 @@ export default function CollaborationsDisplay() {
   const [collaborators, setCollaborators] = useState<RelationCollaborators[]>([])
   const [selectedProjectId, setSelectedProjectId] = useState<string>('')
   const [statusFilter, setStatusFilter] = useState<string | null>(null)
+  const [showAllObservations, setShowAllObservations] = useState<string | null>(null)
+  const [Observation, setObservation] = useState<boolean>(false)
+  const [taskId, setTaskId] = useState<string>("");
 
   const openUpdateModalAssignment = (a: RelationCollaborators) => {
     if (a.deadline !== undefined) {
@@ -47,37 +54,63 @@ export default function CollaborationsDisplay() {
         const project = await findProject(collab.projectId)
         if (project) collab.objectProject = project
       }))
+
+      await Promise.all(response.data.map(async (collab: RelationCollaborators) => {
+        const observations = await getAllObservationsByTaskId(collab.id)
+        console.log(observations)
+
+        if (observations.data) {
+
+          const setObservations: Observation[] = observations.data.map((r: { creator: { email: string; name: string; id: string; createdAt: string }; id: string, content: string; createdAt: string }) => {
+
+            const { email, name, id, createdAt } = r.creator
+            const user: user = { email, name, id, createdAt }
+            const observation: Observation = { creatorObject: user, content: r.content, createdAt: r.createdAt, id: r.id }
+            return observation
+          })
+
+
+          collab.observations = setObservations
+
+        }
+
+
+
+      }))
+
       setCollaborators(response.data)
     } catch (err) {
       console.error("Erro ao buscar colaboradores:", err)
     }
   }
 
-  const handleDeleteAssignment = async (id: string) => {
-    try {
-      const deleted = await deleteAssignment(id)
-      if (deleted) {
-        toast.success("Colaborador removido com sucesso")
-        await fetchCollaborators()
-      } else toast.error("Erro ao remover colaborador")
-    } catch (err) {
-      console.error(err)
-      toast.error("Erro ao remover colaborador")
-    }
-  }
+  // const handleDeleteAssignment = async (id: string) => {
+  //   try {
+  //     const deleted = await deleteAssignment(id)
+  //     if (deleted) {
+  //       toast.success("Colaborador removido com sucesso")
+  //       await fetchCollaborators()
+  //     } else toast.error("Erro ao remover colaborador")
+  //   } catch (err) {
+  //     console.error(err)
+  //     toast.error("Erro ao remover colaborador")
+  //   }
+  // }
 
   useEffect(() => {
     fetchCollaborators()
   }, [])
 
-   const filteredCollaborators = selectedProjectId
+  const filteredCollaborators = selectedProjectId
     ? collaborators.filter(c => c.objectProject?.id === selectedProjectId && c.objectCollaborator?.id !== c.creatorId)
-    : collaborators.filter(c => c.objectCollaborator?.id !== c.creatorId) 
+    : collaborators.filter(c => c.objectCollaborator?.id !== c.creatorId)
 
-   const filteredByStatus = statusFilter ?  filteredCollaborators.filter(c => c.status === statusFilter) : filteredCollaborators
+  const filteredByStatus = statusFilter ? filteredCollaborators.filter(c => c.status === statusFilter) : filteredCollaborators
 
   return (
     <div>
+      <ObservationModal isOpen={Observation} onClose={(() => {setObservation(false) ; fetchCollaborators()})} creatorId={decoded.userId} taskId={taskId !== "" ? taskId : ""} />
+
       <div className="flex flex-col gap-4 p-4 bg-white mt-5">
         <div className="bg-green-100 p-6 rounded-2xl shadow-sm w-full text-green-800">
           <h1 className="text-xl font-semibold flex items-center gap-2 tracking-tight">
@@ -139,20 +172,20 @@ export default function CollaborationsDisplay() {
                 ) : null
               )}
           </select  >
-              
 
-          <select name="" id=""   className="w-full sm:w-auto border border-gray-300 
+
+          <select name="" id="" className="w-full sm:w-auto border border-gray-300 
           rounded-lg bg-white px-4 
           py-2 text-sm text-gray-700 shadow-sm focus:outline-none
            focus:ring-2 focus:ring-green-500 transition"
-           onChange={(e) => {setStatusFilter(e.target.value)}}
-           >
-              <option value="">Todos</option>
-              <option value="PENDENTE">PENDENTE</option>
-              <option value="EM_PROGRESSO">EM_PROGRESSO</option>
-              <option value="COMPLETO">COMPLETO</option>
+            onChange={(e) => { setStatusFilter(e.target.value) }}
+          >
+            <option value="">Todos</option>
+            <option value="PENDENTE">PENDENTE</option>
+            <option value="EM_PROGRESSO">EM_PROGRESSO</option>
+            <option value="COMPLETO">COMPLETO</option>
 
-           </select>
+          </select>
         </div>
       </div>
 
@@ -196,12 +229,12 @@ export default function CollaborationsDisplay() {
                   </div>
                   <span
                     className={`w-4 h-4 rounded-full ${c.status === "PENDENTE"
-                        ? "bg-yellow-300"
-                        : c.status === "EM_PROGRESSO"
-                          ? "bg-blue-400"
-                          : c.status === "COMPLETO"
-                            ? "bg-emerald-600"
-                            : "bg-gray-300"
+                      ? "bg-yellow-300"
+                      : c.status === "EM_PROGRESSO"
+                        ? "bg-blue-400"
+                        : c.status === "COMPLETO"
+                          ? "bg-emerald-600"
+                          : "bg-gray-300"
                       }`}
                     title={`Status: ${c.status}`}
                   />
@@ -226,6 +259,55 @@ export default function CollaborationsDisplay() {
                     <span className="font-medium">Prazo:</span> {c.deadline ? new Date(c.deadline).toLocaleDateString() : <span className="italic text-gray-400">Sem prazo</span>}
                   </p>
                 </div>
+                <hr className="border-gray-100" />
+
+                <div className="mt-4">
+                       {!c.observations || c.observations.length === 0 && (
+                    <div className="flex flex-col items-center justify-center gap-2 h-50 text-sm text-gray-500 bg-gray-50 border border-dashed border-gray-200 rounded-xl p-4">
+                      <FileText className="w-6 h-6 text-gray-400" />
+                      <span>Você não possui observações</span>
+                    </div>
+                  )}
+
+                  {c.observations && c.observations.length > 0 && (
+                    <div
+                      className={`space-y-3 transition-all duration-300 ease-in-out overflow-hidden ${showAllObservations === c.id ? "max-h-[1000px]" : "max-h-[160px]"
+                        } ${c.observations.length === 1 ? "max-h-[260px]" : ""}`}
+                    >
+                      {c.observations
+                        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                        .map((obs: Observation) => (
+                          <div
+                            key={obs.id}
+                                                      className={` ${c.observations !== undefined && c.observations?.length === 1 ? "h-[200px]" : ""} border border-gray-200 rounded-xl p-3 bg-gray-50 text-gray-700 shadow-sm `}
+                          >
+                            <div className="flex justify-between items-center mb-1">
+                              <h2 className="text-sm font-semibold text-gray-800">{obs.creatorObject.name}  {c.creatorId === obs.creatorObject.id ? "(ADM)" : null}</h2>
+                              <span className="text-xs text-gray-500">
+                                {new Date(obs.createdAt).toLocaleString('pt-BR')}
+                              </span>
+                            </div>
+                            <p className="text-sm leading-snug break-words whitespace-pre-wrap w-full">
+                              {obs.content}
+                            </p>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+
+                  {c.observations && c.observations.length > 1 && (
+                    <div className="flex justify-center pt-3">
+                      <button
+                        onClick={() =>
+                          setShowAllObservations(prev => (prev === c.id ? null : c.id))
+                        }
+                        className="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-100 px-3 py-1 rounded-full hover:bg-green-200 transition"
+                      >
+                        {showAllObservations === c.id ? "Ver menos" : "Ver mais"}
+                      </button>
+                    </div>
+                  )}
+                </div>
 
                 <hr className="border-gray-100" />
                 <p className="flex items-center gap-2 text-sm text-gray-600">
@@ -238,7 +320,8 @@ export default function CollaborationsDisplay() {
                     <PlusCircle className="w-3 h-3" />
                     Criar Tarefa
                   </button>
-                  <button className="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-100 px-3 py-1 rounded-full hover:bg-green-200 transition">
+                  <button className="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-100 px-3 py-1 rounded-full hover:bg-green-200 transition"
+                    onClick={() => { setObservation(true); setTaskId(c.id) }}>
                     <PlusCircle className="w-3 h-3" />
                     Adicionar Observação
                   </button>
@@ -257,7 +340,7 @@ export default function CollaborationsDisplay() {
                   </button>
                   <button
                     className="flex-1 py-2 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-all flex items-center justify-center gap-2"
-                    onClick={() => handleDeleteAssignment(c.id)}
+                   
                   >
                     <Trash2 className="w-4 h-4" />
                     Cancelar

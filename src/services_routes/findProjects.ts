@@ -32,6 +32,9 @@ export async function findProject(projectId: string): Promise<ProjectCard | null
 }   
 
 export async function updateProject(projectId: string, data: Partial<ProjectCard>) {
+     
+
+    data.deadline = new Date(data.deadline as string).toISOString()
     const request = await fetch(`${import.meta.env.VITE_API_URL}/project/${projectId}`, {
         method: "PUT",
         headers: {
@@ -40,6 +43,16 @@ export async function updateProject(projectId: string, data: Partial<ProjectCard
           body: JSON.stringify(data)
     })
     const response = await request.json()
-    if(request.ok) return response.message
-    return null
+
+    if(request.ok) return {status: true}
+
+    const errors: string[]  = [];
+
+    response.error.forEach((error: Partial<{message:string}>) => {
+      errors.push(error.message ? error.message : "Erro não identificado")
+    })
+
+
+    return {status: false, message: errors.length === 1 ? errors[0] : errors}
+    
 }

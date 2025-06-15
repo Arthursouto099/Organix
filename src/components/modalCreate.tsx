@@ -1,8 +1,9 @@
 import React from "react";
 import { useState } from "react";
-import { isUpdated } from "../services/api";
+
 import { createProject } from "../services/projects_api";
 import { toast } from "react-toastify";
+import { updateProject } from "../services_routes/findProjects";
  // lembra que se for adicionar algo novo adicione aqui prioritariamente
 type ProjectFormData = {
   name: string;
@@ -34,6 +35,8 @@ export const ModalFormProject: React.FC<ModalFormProjectProps> = ({
     description: initialSetup?.description || "",
     status: initialSetup?.status || "PENDENTE",
     priority: initialSetup?.priority || "NORMAL",
+    deadline: ""
+    
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -44,16 +47,47 @@ export const ModalFormProject: React.FC<ModalFormProjectProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+
     if(projectId) {
-      await isUpdated(projectId, form)
+      const isSuccess = await updateProject(projectId, form)
+     if(isSuccess.status) {
+          onClose()
+          toast.success("Projeto editado com sucesso")
+          return
+      } 
+
       onClose()
-      toast.success("Projeto editado com sucesso")
+      
+
+
+      if(isSuccess.message instanceof Array) {
+        isSuccess.message.forEach((e) => toast.error(e))
+        return
+      }
+      toast.error(isSuccess.message)
+
     }
 
     else {
-      await createProject(form.name, form.description, userId, form.status, form.priority)
+      const isSuccess =  await createProject(form.name, form.description, userId, form.status, form.priority,  form.deadline)
+      if(isSuccess.status) {
+          onClose()
+          toast.success("Projeto criado com sucesso")
+          return
+      } 
+
       onClose()
-      toast.success("Projeto criado com sucesso")
+      
+
+
+      if(isSuccess.message instanceof Array) {
+        isSuccess.message.forEach((e) => toast.error(e))
+        return
+      }
+      toast.error(isSuccess.message)
+
+ 
     }
 
      
@@ -92,6 +126,13 @@ export const ModalFormProject: React.FC<ModalFormProjectProps> = ({
             className="border border-gray-300 rounded px-3 py-2"
             required
           />
+
+          <input type="date"    name="deadline"
+            value={form.deadline}
+            onChange={handleChange}
+            placeholder="Descrição"
+            className="border border-gray-300 rounded px-3 py-2"
+            required />
 
           <select
             name="status"

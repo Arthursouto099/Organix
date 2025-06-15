@@ -33,6 +33,8 @@ model User {
 
   // Inverso da relação para quem foi atribuído
   receivedAssignments ProjectAssignment[] @relation("AssignedUser")
+  observations Observation[] 
+
 }
 
 
@@ -44,6 +46,7 @@ model Project {
   userId    String
   status  ProjectStatus @default(PENDENTE)
   priority PriorityStatus @default(NORMAL)
+  deadline   DateTime? @default(now())
   user      User     @relation(fields: [userId], references: [id])
   
 
@@ -96,4 +99,17 @@ model  ProjectAssignment {
   description String
   assignedAt DateTime @default(now())
   deadline   DateTime?
+
+  tasks Observation[]
 }
+
+
+model Observation {
+  id String @id @default(ulid())
+  creator User @relation(fields: [creatorId], references: [id])
+  creatorId String
+  task ProjectAssignment @relation(fields: [taskId], references: [id])
+  taskId String
+  content String 
+  createdAt DateTime @default(now())
+} 

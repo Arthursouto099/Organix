@@ -1,7 +1,7 @@
 import { isToken, isLogin, findUser } from "../services_routes/useAuth";
-import { findProject, findProjects, updateProject } from "../services_routes/findProjects";
+import { findProject, findProjects } from "../services_routes/findProjects";
 import { findReceived, acceptRequest,findAccepts } from "../services_routes/findReceived";
-import { ProjectCard } from "../pages/DashBoard";
+
 import { findRelationCollaborator } from "../services_routes/findAssignments";
 
 
@@ -70,11 +70,6 @@ export async function isProject(projectId: string) {
     return null
 }
 
-export async function isUpdated(projectId:string, data: Partial<ProjectCard>) {
-    const updatedAt = await updateProject(projectId, data);
-    if(updatedAt!== null) return updatedAt
-    return null
-}
 
 
 export async function isAssignmentList(projectId: string) {

@@ -8,8 +8,8 @@ export default class ProjectController {
 
     public static async createProject(req: Request, res:  Response) {
         try{
-            const {name, description, status, userId, priority} = req.body
-            await prisma.project.create({data: {name, description, status, userId, priority}})
+            const {name, description, status, userId, priority, deadline} = req.body
+            await prisma.project.create({data: {name, description, status, userId, priority, deadline}})
             res.status(201).json({message: "Projeto criado com sucesso"})
 
 
@@ -25,6 +25,7 @@ export default class ProjectController {
 
     public static async deleteProject(req: Request, res: Response) {
         try {
+            
             await prisma.projectAssignment.deleteMany({where: {projectId: req.params.id}})
             await prisma.project.delete({where: {id: req.params.id}})
             res.status(200).json({message: "Projeto deletado com sucesso"})
@@ -37,8 +38,8 @@ export default class ProjectController {
 
     public static async updateProject(req: Request, res: Response) {
         try {
-           const {name, description, status, priority} = req.body 
-           await prisma.project.update({data: {name, description, status, priority}, where: {id: req.params.id}})
+           const {name, description, status, priority, deadline} = req.body 
+           await prisma.project.update({data: {name, description, status, priority,deadline}, where: {id: req.params.id}})
            res.status(200).json({message: "Projeto alterado com sucesso"})
         }
 

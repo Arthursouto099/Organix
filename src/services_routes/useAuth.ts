@@ -14,7 +14,7 @@ export type user = {
     createdAt: string,
     id: string,
     role?: string,
-    profile_image: string
+    profile_image?: string
 }
 
 

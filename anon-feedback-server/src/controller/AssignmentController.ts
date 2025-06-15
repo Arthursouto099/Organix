@@ -40,6 +40,7 @@ export class AssignmentController {
 
     public static async deleteAssignment(req: Request, res: Response) {
         try {
+                await prisma.observation.deleteMany({where: {taskId: req.params.id}})
             await prisma.projectAssignment.delete({where: {id: req.params.id}});
             res.status(200).json({message: "Relação colaborador apagada com sucesso"})
         }

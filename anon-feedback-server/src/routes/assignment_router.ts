@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { AssignmentController } from "../controller/AssignmentControler";
+import { AssignmentController } from "../controller/AssignmentController";
 
 
 

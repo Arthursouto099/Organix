@@ -28,7 +28,7 @@ export default  function Register() {
     if(user.status === true) {
         toast.success(user.response)
         toast.info("Você sera direcionado a tela de login")
-        setInterval(() => {navigate("/login")}, 2000)
+        navigate("/login")
         
         return
     } 
