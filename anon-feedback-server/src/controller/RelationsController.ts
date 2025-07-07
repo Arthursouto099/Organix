@@ -1,5 +1,7 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import prisma from "../client";
+import { AppError } from "../handlers/AppError";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 
 
@@ -9,14 +11,15 @@ import prisma from "../client";
 export default class RelationsController {
 
 
-    public static async sendRequest(req: Request, res: Response) {
-        const { requesterId, recipientId } = req.body;
+    public static async sendRequest(req: Request, res: Response, next: NextFunction) {
+        const { recipientId } = req.body;
 
         try {
 
             // verificando se os ids são os mesmos
-            if (requesterId === recipientId) {
-                res.status(400).json({ message: "Você não pode enviar uma solicitação a você mesmo" })
+            if (req.requestLogged?.userId === recipientId) {
+                // res.status(400).json({ message: "Você não pode enviar uma solicitação a você mesmo" })
+                throw new AppError("You cannot send a reqeust to yourself", 400)
             }
 
 
@@ -25,184 +28,161 @@ export default class RelationsController {
 
             await prisma.friendship.create({
                 data: {
-                    requesterId: requesterId,
+                    requesterId: req.requestLogged?.userId as string,
                     recipientId: recipientId
                 }
             })
 
-            res.status(201).json({ message: "Relação criada com sucesso" })
+            res.status(201).json({ message: "Relation created successfully" })
         }
 
-        catch (e: unknown) {
-            console.log(e)
-            res.status(500).json({ message: "Erro interno" })
+        catch (e) {
+            if (e instanceof PrismaClientKnownRequestError) {
+                next(new AppError("Error in database", 500))
+                return
+            }
+
+            next(e)
         }
     }
 
     // procurar requisições que o usuario recebeu
-    public static async findReceived(req: Request, res: Response) {
+    public static async findReceived(req: Request, res: Response, next: NextFunction) {
         try {
-            const { recipientId } = req.params
 
-            const relation = await prisma.friendship.findMany({ where: { recipientId, status: "PENDENTE" }, })
-
-
-            if (relation) {
-                const received = []
-
-                for (const i of relation) {
-                    const requester = await prisma.user.findUnique({ where: { id: i.requesterId } })
-                    if (requester) {
-                        received.push({
-                            id: requester.id,
-                            name: requester.name,
-                            email: requester.email,
-                            status: i.status,
-                            createdAt: i.createdAt,
-                            relationId: i.id
-                        })
-                    }
-                }
-
-                res.status(200).json({ data: received })
-            }
+            res.status(200).json({
+                data: await prisma.friendship
+                    .findMany({
+                        where: {
+                            recipientId: req.requestLogged?.userId,
+                            status: "PENDENTE"
+                        }, include: { requester: true, recipient: true }
+                    })
+            })
         }
 
-        catch (e: unknown) {
-            console.log(e)
-            res.status(500).json({ message: "Erro Interno" })
+        catch (e) {
+            if (e instanceof PrismaClientKnownRequestError) {
+                next(new AppError("Error in database", 500))
+                return
+            }
+
+            next(e)
         }
 
     }
 
 
-    public static async findUserCollaborations(req: Request, res: Response) {
-        
+    public static async findUserCollaborations(req: Request, res: Response, next: NextFunction) {
+
 
 
         try {
-            const relations = await prisma.projectAssignment.findMany({
-                where: { userId: req.params.userId }, 
+            res.status(200).json({
+                data: await prisma.projectAssignment.findMany({
+                    where: { userId: req.requestLogged?.userId as string },
+                })
             })
 
-             res.status(200).json({ data: relations })
 
-            
         }
 
-        catch (e: unknown) {
-            console.log(e)
-            res.status(500).json({ message: "Erro Interno" })
-        }
-
-
-
-    }
-
-    public static async findRequesters(req: Request, res: Response) {
-        try {
-            const { requesterId } = req.params
-
-            const relation = await prisma.friendship.findMany({ where: { requesterId, status: "PENDENTE" }, })
-
-
-            if (relation) {
-                const requested = []
-
-                for (const i of relation) {
-                    const recepient = await prisma.user.findUnique({ where: { id: i.recipientId } })
-                    if (recepient) {
-                        requested.push({
-                            id: recepient.id,
-                            name: recepient.name,
-                            email: recepient.email,
-                            requesterId: i.requesterId,
-                            status: i.status,
-                            createdAt: i.createdAt,
-                            relationId: i.id
-                        })
-                    }
-                }
-
-                res.status(200).json({ data: requested })
+        catch (e) {
+            if (e instanceof PrismaClientKnownRequestError) {
+                next(new AppError("Error in database", 500))
+                return
             }
+
+            next(e)
         }
 
-        catch (e: unknown) {
-            console.log(e)
-            res.status(500).json({ message: "Erro Interno" })
+
+
+    }
+
+    public static async findRequesters(req: Request, res: Response, next: NextFunction) {
+        try {
+
+            res.status(200).json({ data: await prisma.friendship.findMany({ where: { requesterId: req.requestLogged?.userId, status: "PENDENTE" }, include: { recipient: true, requester: true } }) })
+        }
+
+        catch (e) {
+            if (e instanceof PrismaClientKnownRequestError) {
+                next(new AppError("Error in database", 500))
+                return
+            }
+
+            next(e)
         }
 
     }
 
 
-    public static async acceptRequest(req: Request, res: Response) {
+    public static async acceptRequest(req: Request, res: Response, next: NextFunction) {
         try {
             const { relationId } = req.params
             await prisma.friendship.update({ where: { id: relationId }, data: { status: "ACEITA" } })
-            res.status(200).json({ message: "Solicitação aceita com sucesso" })
+            res.status(200).json({ message: "Request accepted successfully" })
         }
-        catch (e: unknown) {
-            console.log(e)
-            res.status(500).json({ message: "Erro Interno" })
+        catch (e) {
+            if (e instanceof PrismaClientKnownRequestError) {
+                next(new AppError("Error in database", 500))
+                return
+            }
+
+            next(e)
         }
 
     }
 
 
-    public static async findAccepts(req: Request, res: Response) {
+    public static async findAccepts(req: Request, res: Response, next: NextFunction) {
         try {
-            const { recipientId } = req.params
 
 
-            const relation = await prisma.friendship.findMany({
+            const userId = req.requestLogged?.userId;
+
+
+
+            const relations = await prisma.friendship.findMany({
                 where: {
-                    // Busca todas as amizades com status "ACEITA" onde:
-                    // - o usuário atual (recipientId do req.params) é o recipient (quem recebeu a amizade)
-                    // - ou o usuário atual é o requester (quem enviou a amizade)
-
-                    status: "ACEITA", OR: [
-                        { recipientId },
-                        { requesterId: recipientId }
+                    status: "ACEITA",
+                    OR: [
+                        { recipientId: userId },
+                        { requesterId: userId }
                     ]
+                },
+                include: {
+                    requester: true,
+                    recipient: true
                 }
             })
 
-
-            if (relation) {
-                const received = []
-
-                for (const i of relation) {
-                    // Se o usuário atual é o requester, o outro participante é o recipient
-                    // Caso contrário, o usuário atual é o recipient, então o outro participante é o requester
-
-                    const otherUserId = i.requesterId === recipientId ? i.recipientId : i.requesterId;
-                    // Busca os dados do outro participante da amizade para retornar no resultado
-
-                    const user = await prisma.user.findUnique({
-                        where: { id: otherUserId },
-                    });
+            const result = relations.map((rel) => {
+                const isRequester = rel.requesterId === userId;
+                const otherUser = isRequester ? rel.recipient : rel.requester
 
 
-                    if (user) {
-                        received.push({
-                            id: user.id,
-                            name: user.name,
-                            email: user.email,
-                            status: i.status,
-                            createdAt: i.createdAt,
-                            relationId: i.id,
-                        })
-                    }
+                return {
+                    id: otherUser.id,
+                    name: otherUser.name,
+                    email: otherUser.email,
+                    status: rel.status,
+                    createdAt: rel.createdAt,
+                    relationId: rel.id,
                 }
+            })
 
-                res.status(200).json({ data: received })
-            }
+                res.status(200).json({ data: result });
         }
 
-        catch (e: unknown) {
-            console.log(e)
-            res.status(500).json({ message: "Erro Interno" })
+        catch (e) {
+            if (e instanceof PrismaClientKnownRequestError) {
+                next(new AppError("Error in database", 500))
+                return
+            }
+
+            next(e)
         }
 
     }

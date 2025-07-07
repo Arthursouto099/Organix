@@ -22,12 +22,17 @@ model User {
   password  String
   createdAt DateTime   @default(now())
   profile_image Bytes?
-  role String? @default("Não definido")
+  role UserRole @default(USER)
   projects Project[]
+  isActive Boolean @default(true)
   // relação de requisições que o user faz
   sentRequests     Friendship[] @relation("RequestingUser")
   // relação de requisições que o user recebe
   receivedRequests Friendship[] @relation("ReceivingUser")
+  // relação entre organização/empresas
+  organizationId String? 
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  
 
   createdAssignments ProjectAssignment[] @relation("CreatorAssignments")
 
@@ -35,8 +40,20 @@ model User {
   receivedAssignments ProjectAssignment[] @relation("AssignedUser")
   observations Observation[] 
 
+
+  collaboratedProjects Project[] @relation("ProjectCollaborators")
 }
 
+
+model Organization {
+  id String @id @default(uuid())
+  name String
+  users User[]
+  projects Project[]
+  createdAt DateTime @default(now())
+
+  ProjectAssignment ProjectAssignment[]
+}
 
 model Project {
   id        String   @id @default(uuid())
@@ -48,6 +65,17 @@ model Project {
   priority PriorityStatus @default(NORMAL)
   deadline   DateTime? @default(now())
   user      User     @relation(fields: [userId], references: [id])
+  pogress Int @default(0)
+  // Orçamento do projeto
+  budget Float
+  tag String?
+  organizationId String?
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  archived Boolean @default(false)
+  field String? @default("Campo não definido")
+  collaborators User[] @relation("ProjectCollaborators")
+
+  //isPublic Boolean @default(false)
   
 
   ProjectAssignment ProjectAssignment[]
@@ -72,6 +100,13 @@ enum FriendshipStatus {
 }
 
 
+enum UserRole {
+  ADMIN
+  GERENTE
+  USER
+  GUEST
+}
+
 
 enum ProjectStatus {
   PENDENTE
@@ -92,15 +127,16 @@ model  ProjectAssignment {
   creatorId   String?
   project Project @relation(fields: [projectId], references: [id])
   projectId String
-  user        User     @relation("AssignedUser", fields: [userId], references: [id])
-  userId      String
+  user        User?     @relation("AssignedUser", fields: [userId], references: [id])
+  userId      String?
   status ProjectStatus @default(EM_PROGRESSO)
   task String
   description String
   assignedAt DateTime @default(now())
   deadline   DateTime?
-
-  tasks Observation[]
+  orgId Organization? @relation(fields: [organizationId], references: [id])
+  organizationId String?
+  obsv Observation[]
 }
 
 

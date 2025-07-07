@@ -1,18 +1,34 @@
 import { Router } from "express";
 import ProjectController from "../controller/ProjectsController";
-import { ValidadeUpdate, ValidateProject } from "../schemas/validateProjects";
-import isValidSchema from "../middlewares/checkSchema";
+import {  } from "../schemas/validateProjects";
+
+import { authMiddleware } from "../middlewares/authMiddleware";
 
 
 const projects_router = Router()
 
 
-projects_router.post("/create",isValidSchema(ValidateProject) , ProjectController.createProject)
-projects_router.get("/projects/:id", ProjectController.findProjects)
-projects_router.post("/projects/:id", ProjectController.addLabel)
-projects_router.get("/project/:projectId", ProjectController.findProject)
-projects_router.put("/:id", isValidSchema(ValidadeUpdate), ProjectController.updateProject)
-projects_router.delete("/:id", ProjectController.deleteProject)
+// Criar um novo projeto
+projects_router.post("/", authMiddleware, ProjectController.createProject);
+
+// Buscar todos os projetos do usuário
+projects_router.get("/", authMiddleware, ProjectController.findProjects);
+
+// Buscar um projeto específico por ID
+projects_router.get("/:id", authMiddleware, ProjectController.findProject);
+
+// Atualizar um projeto específico
+projects_router.put("/:id", authMiddleware, ProjectController.updateProject);
+
+// Deletar um projeto específico
+projects_router.delete("/:id", authMiddleware, ProjectController.deleteProject);
+
+// Adicionar uma label ao projeto
+projects_router.post("/:id/labels", authMiddleware, ProjectController.addLabel);
+
+
+projects_router.put("/collaborators/:id", authMiddleware, ProjectController.addCollaborators )
+projects_router.put("/collaborators/remove/:id" , authMiddleware, ProjectController.removeCollaborators)
 
 
 export default projects_router          

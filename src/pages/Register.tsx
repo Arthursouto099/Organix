@@ -1,127 +1,130 @@
+import React, { useState } from "react";
+import { registerInfo } from "../types/allTypes";
+import { registerUserOrg } from "../api/userApi";
+import { toast } from "react-toastify";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@radix-ui/react-label";
+import { Button } from "@/components/ui/button";
 
-import Logo from "../images/engaje_logo.svg";
-import {  useNavigate } from "react-router-dom";
-import { FormEvent,  useState } from "react";
-import "../styles/tailwind.css"
-import {toast} from "react-toastify"
-
-import Message from "../components/message";
-import { registerUser } from "../services/auth_api";
-
+export default function Register() {
+    const [registerInfo, setRegisterInfo] = useState<registerInfo>({
+        email: "",
+        name: "",
+        password: "",
+        orgName: ""
+    })
 
 
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setRegisterInfo({
+            ...registerInfo,
+            [e.target.name]: e.target.value
+        })
+    }
 
-export default  function Register() {
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
-  const [messageType, setMessageType] = useState({message: '', type: ''});
 
-  const navigate = useNavigate()
+    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const fetchResponse = await registerUserOrg(registerInfo)
+        if (fetchResponse.status) {
+            toast.success("Usuario criado com sucesso")
+            toast.success("Sua Organização/Empresa já estará disponível no seu dashboard")
+            return
+        }
 
-  const handleSubmit =  async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+        toast.error(fetchResponse.message)
 
-    const user = await registerUser(name, email, password)
-   
+    }
 
-    if(user.status === true) {
-        toast.success(user.response)
-        toast.info("Você sera direcionado a tela de login")
-        navigate("/login")
-        
-        return
-    } 
 
-    toast.error(user.response)
-    
-  }
+    return (
 
-  
+        <div className="min-h-screen w-full flex items-center justify-center">
+            <Card className="m-4 w-full p-4  max-w-sm md:max-w-[900px] md:p-6">
 
-  return (
-    
-    
-    
+                <div className="flex flex-col gap-2 justify-between m-3 py-3 md:flex-row ">
+                    <div className=" flex flex-col w-full">
+                        <div className="mb-5">
+                            <h1 className="font-bold text-xl">Informações sobre o seu perfil</h1>
+                            <p className="font-normal">Coletando seu dados para criar seu usuario</p>
+                        </div>
 
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-  
-    {messageType.type === "success" ? (
-      <Message
-        type="success"
-        text="Login realizado com sucesso"
-        duration={2000}
-        onClose={() => setMessageType({ message: "", type: "" })}
-      />
-    ) : null}
-  
-    {messageType.type === "error" && (
-      <Message
-        type="error"
-        text="Erro ao fazer login"
-        duration={2000}
-        onClose={() => setMessageType({ message: "", type: "" })}
-      />
-    )}
-  
-    <div className="bg-stone-900 p-6 shadow-xl w-full max-w-sm rounded-2xl">
-      
-      <div className="flex justify-center mb-6">
-        <img
-          src={Logo}
-          alt="Logo Engaje"
-          className="w-32 sm:w-48 md:w-56 lg:w-64 -mt-6"
-        />
-      </div>
-  
-      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-         <div>
-          <label className="block text-gray-100 font-semibold mb-1">Name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full p-3 bg-background text-gray-100 rounded-md"
-            placeholder="Digite seu nome"
-          />
+                        <form action="" onSubmit={onSubmit} className="flex flex-col gap-5">
+                            <div className="grid gap-2">
+                                <Label htmlFor="name"> Nome </Label>
+                                <Input className="" id="name" name="name" type="text" placeholder="Usuario"
+                                    value={registerInfo.name}
+                                    required
+                                    onChange={handleChange}
+
+
+
+                                />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label> Email </Label>
+                                <Input className="" id="email" name="email" type="text" placeholder="email@gmail.com"
+                                    required
+                                    value={registerInfo.email}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label> Senha </Label>
+                                <Input className="" id="password" name="password" type="text" placeholder="***********"
+                                    required
+
+                                    value={registerInfo.password}
+                                    onChange={handleChange}
+                                />
+                            </div>
+
+
+
+                        </form>
+
+                    </div>
+
+                    <div className="w-[1px]   m-10 bg-violet-500"> </div>
+
+                    <div className="flex flex-col w-full ">
+                        <div className="mb-5">
+                            <h1 className="font-bold text-xl">Informações referente a sua organização/empresa</h1>
+                            <p className="font-normal">Coletando seu dados para criar sua org</p>
+                        </div>
+                        <form action="" onSubmit={onSubmit} className="flex flex-col gap-5">
+
+
+                            <div className="grid gap-2">
+                                <Label> Nome da empresa/org </Label>
+                                <Input className="" id="org" name="orgName" type="text" placeholder="Empresa/Organização"
+                                    required
+
+                                    value={registerInfo.orgName}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label>CNPJ/CPF</Label>
+                                <Input className="" id="org" name="orgName" type="text" placeholder="Empresa/Organização"
+                                    disabled
+
+                                 
+                                />
+                                  
+                            </div>
+
+                           
+                            <Button type="submit"  variant={"default"}  className="bg-violet-500 text-gray-200 hover:bg-violet-400" >Create Account</Button>
+                            
+                        </form>
+                    </div>
+                </div>
+
+            </Card>
         </div>
-        <div>
-          <label className="block text-gray-100 font-semibold mb-1">E-mail</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 bg-background text-gray-100 rounded-md"
-            placeholder="Digite seu e-mail"
-          />
-        </div>
-  
-        <div>
-          <label className="block text-gray-100 font-semibold mb-1">Senha</label>
-          <input
-            type="password"
-            placeholder="Digite sua senha"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-3 bg-background text-gray-100 rounded-md"
-          />
-        </div>
-  
-        <button
-          type="submit"
-          className="bg-green-500 hover:bg-green-700 text-white py-3 rounded-md font-semibold transition-all duration-300 transform hover:scale-105"
-        >
-          Entrar
-        </button>
-  
-        <p className="text-center text-sm text-gray-100">
-          Não tem uma conta?{" "}
-          <a href="/register" className="text-green-500 hover:underline">
-            Cadastre-se
-          </a>
-        </p>
-      </form>
-    </div>
-  </div>
-  );
+
+    )
+
 }
