@@ -4,7 +4,7 @@ import ProjectCreateModal from "@/components/dialog-default";
 
 import { getInfoBytoken } from "@/utils/decoded";
 import ProjectCard from "@/components/project-card";
-import { MainMenu } from "@/components/main-menu";
+
 import { SelectScrollable } from "@/components/select";
 
 import { useState } from "react";
@@ -12,6 +12,9 @@ import GraphicProjects from "@/components/projects-graphic";
 import Latest from "@/components/latest";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import KPIsDashboard from "@/components/kpis-dashboard";
+import { Input } from "@/components/ui/input";
+import { SearchCode } from "lucide-react";
+
 
 
 
@@ -22,10 +25,15 @@ import KPIsDashboard from "@/components/kpis-dashboard";
 export default function Home() {
     const { projects, refetch } = useProjectByOrg(getInfoBytoken()?.organizationId as string)
     const [isFilter, setFilter] = useState<string | null>(null)
+    const [isFilterByName, setFilterByName] = useState<string>("");
     const [showUtils, setUtils] = useState<string>("latest")
 
 
     const projectsFilter = isFilter && isFilter !== "TODOS" ? projects.filter((p) => p.status === isFilter) : projects
+    const taskFilter = isFilterByName !== "" ? projectsFilter?.filter(project =>   project.name.toUpperCase().includes(isFilterByName.toUpperCase())) : projectsFilter
+
+
+
 
     return (
         <section className="flex-1 flex flex-col space-y-8 p-6 overflow-auto">
@@ -94,11 +102,9 @@ export default function Home() {
 
             <div>
 
-                <div className="mb-4">
-                    <MainMenu></MainMenu>
-                </div>
+         
 
-                <div className="flex gap-4">
+                <div className="flex gap-5">
                     <SelectScrollable
                         items={["EM_PROGRESSO", "PENDENTE", "COMPLETO", "TODOS"]}
                         value={isFilter ?? ""}
@@ -108,12 +114,20 @@ export default function Home() {
                         label="Selecione prioridade"
                     />
 
+                    
+                  
+                    <div className="flex items-center gap-2">
+
+                        <SearchCode></SearchCode>
+                        <Input placeholder="Insira o nome do projeto" onChange={(e) => {
+                            setFilterByName(e.target.value)
+                        }}></Input>
+                    </div>
+
+
                     <ProjectCreateModal onClose={() => {
                         refetch()
                     }}></ProjectCreateModal>
-                  
-
-
 
                 </div>
 
@@ -134,7 +148,7 @@ export default function Home() {
                   ">
 
 
-                {projectsFilter.map((project) => (
+                {taskFilter.map((project) => (
                     <ProjectCard onAssignmentCreated={() => {
                         refetch()
                     }} project={project} key={project.id as string}>

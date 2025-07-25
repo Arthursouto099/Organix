@@ -137,6 +137,7 @@ model  ProjectAssignment {
   orgId Organization? @relation(fields: [organizationId], references: [id])
   organizationId String?
   obsv Observation[]
+  updatedAt  DateTime @updatedAt @default(now()) // Corrigido
 }
 
 

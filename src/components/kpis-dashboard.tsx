@@ -61,7 +61,7 @@ export default function KPIsDashboard() {
 
     </CardHeader>
     <CardContent>
-      <ChartContainer config={chartConfig} className="h-31 w-2xl">
+      <ChartContainer config={chartConfig} className="h-60 w-2xl">
       <BarChart data={data} layout="vertical" margin={{ right: 16 }}>
 
 
@@ -69,9 +69,9 @@ export default function KPIsDashboard() {
           <YAxis dataKey="user.name" type="category" hide />
           <XAxis dataKey="value" type="number" hide />
           <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
-          <Bar dataKey="value" label="bg"  fill="var(--color-bg)"  radius={4} >
-            <LabelList dataKey="user.name"  position="insideLeft" offset={8} fontSize={12} className="fill-gray-200 font-bold"  />
-            <LabelList dataKey="value" position="right" offset={8} fontSize={12} className="text-gray-100" />
+          <Bar dataKey="value"  label="bg"  fill="var(--color-bg)"   radius={4} >
+            <LabelList dataKey="user.name"   position="insideLeft"   offset={8} fontSize={13} className="fill-gray-200 font-bold"  />
+            <LabelList dataKey="value" position="right" offset={8} fontSize={14} className="text-gray-100" />
           </Bar>
         </BarChart>
       </ChartContainer>

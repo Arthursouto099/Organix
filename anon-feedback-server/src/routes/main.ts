@@ -14,7 +14,7 @@ main.use("/org", org_router)
 main.use("/project", projects_router)
 main.use("/relations", relations_router)
 main.use("/assignment", assignment_router)
-main.use("/observation", observations)
+main.use("/obs", observations)
 
 
 

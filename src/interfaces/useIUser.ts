@@ -10,7 +10,7 @@ export interface User {
   profile_image?: Uint8Array | null;
   role: UserRole;
   organizationId?: string | null;
-  isActive?: boolean
+  isActive? : boolean
 }
 
 
