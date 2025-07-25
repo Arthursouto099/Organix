@@ -26,7 +26,7 @@ projects_router.delete("/:id", authMiddleware, ProjectController.deleteProject);
 // Adicionar uma label ao projeto
 projects_router.post("/:id/labels", authMiddleware, ProjectController.addLabel);
 
-
+projects_router.patch("/:id", authMiddleware, ProjectController.ckeckAndCompleteProject)
 projects_router.put("/collaborators/:id", authMiddleware, ProjectController.addCollaborators )
 projects_router.put("/collaborators/remove/:id" , authMiddleware, ProjectController.removeCollaborators)
 

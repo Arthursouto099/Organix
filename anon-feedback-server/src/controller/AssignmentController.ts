@@ -50,8 +50,8 @@ export class AssignmentController {
 
     public static async updateAssignment(req: Request, res: Response, next: NextFunction) {
         try {
-            const { name, description, status, deadline } = req.body
-            await prisma.projectAssignment.update({ data: { description, task: name, status, deadline }, where: { id: req.params.id } })
+            const { task, description, status, deadline, userId } = req.body
+            await prisma.projectAssignment.update({ data: { description, task: task, status, deadline, userId}, where: { id: req.params.id }  }) 
             res.status(200).json({ message: "Assignment updated successfully" })
         }
         catch (err) {
@@ -59,6 +59,7 @@ export class AssignmentController {
                 next(new AppError("Error in database", 500))
                 return
             }
+            console.log(err)
             next(err)
         }
     }
@@ -88,10 +89,12 @@ export class AssignmentController {
 
         try {
             const relations = await prisma.projectAssignment.findMany({
-                where: { userId: req.requestLogged?.userId as string },
+                where: { userId: req.requestLogged?.userId as string }, include: {obsv: {include: {creator: true}}},
             })
 
-            res.status(200).json({ data: relations })
+
+       
+            res.status(200).json({ data: relations  })
 
 
         }

@@ -1,6 +1,7 @@
 import { ProjectStatus } from "@/types/projects_types"
 import {User} from "../interfaces/useIUser"
 import { Project } from "./useIProject"
+import { Obs } from "@/api/observationApi"
 
 export interface Assignment {
     id?: string
@@ -9,10 +10,12 @@ export interface Assignment {
     description: string
     assignedAt?: Date
     deadline?: Date
-    projectId: string
+    projectId?: string
     status: ProjectStatus
     userId?:  string
     user?: User;
-    project: Project
+    project?: Project
+    obsv?: Obs[]
+    updatedAt?: Date
 }
 

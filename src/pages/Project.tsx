@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import useProject from "@/hooks/useProject-hook";
 import formatDateUTC from "@/utils/formatDate";
-import { Calendar, CheckCircle, ListTodo, User, UsersIcon } from "lucide-react";
+import { Calendar, CheckCircle, ListOrdered, ListTodo, SearchCode, StickyNote, User, UsersIcon } from "lucide-react";
 import { useParams } from "react-router-dom";
 
 
@@ -13,6 +13,10 @@ import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "
 import { Assignment } from "@/interfaces/useIAssignment";
 import AssignmentCreateModal from "@/components/dialog-assignment";
 import AssignmentCard from "@/components/assignment-card";
+import { useEffect, useState } from "react";
+import { SelectScrollable } from "@/components/select";
+import { Input } from "@/components/ui/input";
+import { checkCompletion } from "@/api/assignmentApi";
 
 
 interface chartDateProps {
@@ -82,8 +86,47 @@ export function DateChart({ data }: chartDateProps) {
 
 export default function ProjectDashBoard() {
     const params = useParams()
+    const [isFilter, setFilter] = useState<string | null>(null)
+    const [isFilterByName, setFilterByName] = useState<string>("");
     const { data, callback } = useProject(params.id as string)
 
+    useEffect(() => {
+        if(data?.id) {
+              checkCompletion(data?.id)
+        }
+    })
+  
+
+    const primaryFilter = isFilter && data?.ProjectAssignment !== undefined && isFilter !== "TODOS" ? data?.ProjectAssignment.filter((p) => p.status === isFilter) : data?.ProjectAssignment
+
+    const totalObs = data?.ProjectAssignment?.reduce((sum, ass) => {
+        return sum + (Array.isArray(ass.obsv) ? ass.obsv?.length : 0)
+    }, 0) ?? 0
+
+    const taskCompleted = data?.ProjectAssignment?.filter((project) => project.status === "COMPLETO").length
+    const totalTasks = data?.ProjectAssignment?.length
+
+
+
+    
+
+
+    // if(taskCompleted === totalTasks) {
+    //     const updated = async () => {
+    //         if(!data)  return null
+    //         data.status = "COMPLETO"
+    //         await updateProject(data)
+    //         toast.success("Projeto Completo com Sucesso")
+    //     }
+    //     updated()
+    // }
+
+    
+    
+
+
+
+    const taskFilter = isFilterByName !== "" ? primaryFilter?.filter(task => task.task.toUpperCase().includes(isFilterByName.toUpperCase())) : primaryFilter
 
 
 
@@ -137,15 +180,22 @@ export default function ProjectDashBoard() {
                             <Card className="flex-1 flex items-center flex-row  p-5">
                                 <ListTodo className="h-10 w-10"></ListTodo>
                                 <div>
-                                    <h1 className="text-4xl flex items-center gap-2">{data?.ProjectAssignment?.length} <CheckCircle></CheckCircle></h1>
+                                    <h1 className="text-4xl flex items-center gap-2">{totalTasks} <CheckCircle></CheckCircle></h1>
                                     <p>Tarefas</p>
                                 </div>
                             </Card>
                             <Card className="flex-1 flex items-center flex-row  p-5">
                                 <ListTodo className="h-10 w-10"></ListTodo>
                                 <div>
-                                    <h1 className="text-4xl flex items-center gap-2">{data?.ProjectAssignment?.length} <CheckCircle></CheckCircle></h1>
-                                    <p>Tarefas</p>
+                                    <h1 className="text-4xl flex items-center gap-2">{taskCompleted} <CheckCircle></CheckCircle></h1>
+                                    <p>Tarefas Concluidas</p>
+                                </div>
+                            </Card>
+                            <Card className="flex-1 flex items-center flex-row  p-5">
+                                <StickyNote className="h-10 w-10"></StickyNote>
+                                <div>
+                                    <h1 className="text-4xl flex items-center gap-2">{totalObs} <CheckCircle></CheckCircle></h1>
+                                    <p>Observações Atribuídas</p>
                                 </div>
                             </Card>
 
@@ -229,15 +279,51 @@ export default function ProjectDashBoard() {
 
                         </div>
 
+
                     </CardContent>
                 </Card>
-                
-                
+
+
 
 
             </div>
 
-              <div className="
+            <div className="ml-1 p-4 flex items-center gap-7">
+                <div className="flex gap-4">
+                    <SelectScrollable
+                        items={["EM_PROGRESSO", "PENDENTE", "COMPLETO", "TODOS"]}
+                        value={isFilter ?? ""}
+                        onValueChange={v => {
+                            setFilter(v)
+                        }}
+                        label="Selecione prioridade"
+                    />
+
+
+
+
+
+
+                </div>
+
+
+                <div className="flex items-center gap-3">
+                    <SearchCode></SearchCode>
+                    <Input onChange={(e) => setFilterByName(e.target.value)}>
+                    </Input>
+                </div>
+
+
+                <div className="flex items-center gap-3">
+                    <ListOrdered></ListOrdered>
+                    <h1>Ordenar por data</h1>
+                </div>
+            </div>
+
+
+
+
+            <div className="
               p-5
                            grid
                 grid-cols-1           /* mobile: 1 coluna */
@@ -252,15 +338,27 @@ export default function ProjectDashBoard() {
                               
                               ">
 
-              {data?.ProjectAssignment && data.ProjectAssignment.map((ass) => (
-                <AssignmentCard onAssignmentCreated={() => {callback()}} assignment={ass}> 
 
-                </AssignmentCard>
-              ))}
+
+                {taskFilter &&
+                    taskFilter
+                        .sort((a, b) => {
+                            const timeA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+                            const timeB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+                            return timeB - timeA;
+                        })
+                        .map((ass) => (
+                            <AssignmentCard
+                               collabs={data?.collaborators}
+                                key={ass.id}
+                                onAssignmentCreated={callback}
+                                assignment={ass}
+                            />
+                        ))}
 
 
             </div>
-          
+
         </section>
     )
 }
