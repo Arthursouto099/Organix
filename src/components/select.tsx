@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   Select,
   SelectContent,
@@ -9,8 +8,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { User } from "@/interfaces/useIUser";
-import { User2 } from "lucide-react";
 import { getInfoBytoken } from "@/utils/decoded";
+import { User2 } from "lucide-react";
 
 interface SelectScrollableProps {
   items: string[] ;

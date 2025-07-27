@@ -1,5 +1,4 @@
-// src/components/Layout.tsx
-import React from "react";
+
 import { Outlet, useLocation } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";

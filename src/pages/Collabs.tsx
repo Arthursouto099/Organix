@@ -18,10 +18,10 @@ import { useState } from "react";
 
 
 export default function CollabsDisplay() {
-    const { data, loading, load } = useCollaborators()
+    const { data, load } = useCollaborators()
     const [filter_type, setFilter_type] = useState("")
     const [filte_name, setFilter_name] = useState("")
-
+    console.log(filter_type)
 
     const HandlerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFilter_name(e.target.value)
