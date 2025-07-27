@@ -1,14 +1,37 @@
-import { RouterProvider } from "react-router-dom"
-import router from "./routes/router"
+// src/App.tsx
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "./components/theme-provider";
+import Layout from "../src/Layout";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Home from "./pages/Home";
+import DashBoard from "./pages/DashBoard";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import ProjectDashBoard from "./pages/Project";
+import CollabsDisplay from "./pages/Collabs";
 
-
-
-function App() {
-
-
+export default function App() {
   return (
-    <RouterProvider router={router}/>
-  )
-}
+    <ThemeProvider defaultTheme="dark">
+      <BrowserRouter>
+        <Routes>
+          {/* Essas rotas vão usar o Layout */}
+          <Route element={<Layout />}>
+            <Route path="/home" element={<Home />} />
+            <Route path="/dashboard" element={<DashBoard />} />
+            <Route path="/project/:id" element={<ProjectDashBoard/>}  />
+            <Route path="/collabs" element={<CollabsDisplay/>}/>
+          </Route>
 
-export default App
+          {/* Essas não */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </BrowserRouter>
+
+      <ToastContainer theme="dark" />
+    </ThemeProvider>
+  );
+}
