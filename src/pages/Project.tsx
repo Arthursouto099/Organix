@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import useProject from "@/hooks/useProject-hook";
 import formatDateUTC from "@/utils/formatDate";
-import { Calendar, CheckCircle, ListOrdered, ListTodo, SearchCode, StickyNote, User, UsersIcon } from "lucide-react";
+import { Calendar, CheckCircle, ListTodo, SearchCode, StickyNote, User, UsersIcon } from "lucide-react";
 import { useParams } from "react-router-dom";
 
 
@@ -222,7 +222,7 @@ export default function ProjectDashBoard() {
                     <CardContent>
 
 
-                        <div className="flex ">
+                        <div className="flex flex-col  md:flex-row  ">
 
                             <div className="flex-1">
 
@@ -245,7 +245,7 @@ export default function ProjectDashBoard() {
 
                             </div>
 
-                            <div className="flex-2">
+                            <div className="flex-2 md: mt-6">
                                 <Card>
                                     <CardHeader>
                                         <CardTitle className="text-lg font-semibold">
@@ -256,15 +256,15 @@ export default function ProjectDashBoard() {
                                         </p>
                                     </CardHeader>
 
-                                    <CardContent className="space-y-4">
+                                    <CardContent className="space-y-4 overflow-x-hidden">
                                         {data !== null && data.ProjectAssignment ? (
                                             <>
-                                                <div className="flex items-center justify-between text-sm text-muted-foreground px-2">
+                                                <div className="flex flex-col items-center justify-between text-sm text-muted-foreground px-2">
                                                     <span>Total de Atribuições: {data.ProjectAssignment.length}</span>
                                                     <span>Atualizado em: {new Date().toLocaleDateString()}</span>
                                                 </div>
 
-                                                <Card className="flex-2 shadow-sm border border-border bg-muted/20 p-2 rounded-lg">
+                                                <Card className="flex-1 shadow-sm border border-border bg-muted/20 p-2 rounded-lg">
                                                     <DateChart data={data.ProjectAssignment} />
                                                 </Card>
                                             </>
@@ -288,7 +288,13 @@ export default function ProjectDashBoard() {
 
             </div>
 
-            <div className="ml-1 p-4 flex items-center gap-7">
+            <div className="ml-1 p-4 flex   gap-4 items-start md:items-center  flex-col md:flex-row md:gap-7">
+
+                   <div className="flex items-center gap-3">
+                    <SearchCode></SearchCode>
+                    <Input className="w-[100%]" onChange={(e) => setFilterByName(e.target.value)}>
+                    </Input>
+                </div>
                 <div className="flex gap-4">
                     <SelectScrollable
                         items={["EM_PROGRESSO", "PENDENTE", "COMPLETO", "TODOS"]}
@@ -307,17 +313,10 @@ export default function ProjectDashBoard() {
                 </div>
 
 
-                <div className="flex items-center gap-3">
-                    <SearchCode></SearchCode>
-                    <Input onChange={(e) => setFilterByName(e.target.value)}>
-                    </Input>
-                </div>
+             
 
 
-                <div className="flex items-center gap-3">
-                    <ListOrdered></ListOrdered>
-                    <h1>Ordenar por data</h1>
-                </div>
+             
             </div>
 
 

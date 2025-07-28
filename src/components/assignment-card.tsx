@@ -98,9 +98,9 @@ function ObsForm({ onClose, taskId }: ObsProps) {
                     Essa Observação ficara visível aos outros colaboradores
                 </DialogDescription>
 
-                <form action="" onSubmit={HandlerSubmit} className="flex flex-col gap-5">
-                    <div className="flex justify-start" >
-                        <Textarea placeholder="Escreva Alguma observação sobre a tarefa" onChange={(e) => { setContent(e.target.value) }} className="w-100"></Textarea>
+                <form action="" onSubmit={HandlerSubmit} className="flex flex-col overflow-x-hidden gap-5">
+                    <div className="flex justify-center w-[100%]" >
+                        <Textarea  placeholder="Escreva Alguma observação sobre a tarefa" onChange={(e) => { setContent(e.target.value) }} className="w-[100%]  "></Textarea>
                     </div>
 
                     <Button variant="secondary" className="w-30 cursor-pointer" type="submit">Enviar OBS</Button>
