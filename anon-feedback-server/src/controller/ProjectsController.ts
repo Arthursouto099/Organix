@@ -63,7 +63,7 @@ export default class ProjectController {
             }
 
 
-            
+
             if (project?.status === "COMPLETO" && !isCompleted) {
                 await prisma.project.update({
                     data: { status: "PENDENTE" },
@@ -71,13 +71,13 @@ export default class ProjectController {
                 })
 
 
-                res.status(200).json({updated: true})
+                res.status(200).json({ updated: true })
                 return
             }
 
 
             res.status(200).json({ updated: false });
-       
+
         }
 
 
@@ -239,17 +239,15 @@ export default class ProjectController {
             res.status(200).json({
                 data: await prisma.project.findUniqueOrThrow({
                     where: { id }, include: {
-                        collaborators: {
-                            omit: { password: true, profile_image: true }
-                        },
-                        ProjectAssignment: { include: { user: { omit: { profile_image: true, password: true } }, obsv: true } }
-
+                        collaborators: true,
+                        ProjectAssignment: { include: { user: true, obsv: true } }
                     }
                 })
             })
         }
 
         catch (err) {
+            console.error(err)
             if (err instanceof PrismaClientKnownRequestError) {
                 next(new AppError("Error in database", 500))
                 return
