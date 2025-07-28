@@ -189,7 +189,7 @@ export default function ProjectCard({ project, onAssignmentCreated }: ProjectPro
                     <div className="h-[1px] mt-5 mb-5 w-[100%] bg-accent" ></div>
 
                     <div>
-                        <h1 className="font-normal flex gap-2 items-center"><LucideCircleDollarSign className="h-5"></LucideCircleDollarSign>  Orçamento: {project.budget}R$</h1>
+                        <h1 className="font-normal flex gap-2 items-center"><LucideCircleDollarSign className="h-5"></LucideCircleDollarSign>  Orçamento: R${project.budget}</h1>
 
                     </div>
 

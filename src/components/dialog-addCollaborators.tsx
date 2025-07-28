@@ -38,11 +38,11 @@ export default function AddCollaborators({ onClose, projectId }: AssignmentCreat
     const { collabs } = useCollabs()
 
 
-     const isFilter = filterName !== " " ?  collabs.filter((collab) => collab.name.toUpperCase().includes(filterName.toUpperCase()))  : collabs 
+    const isFilter = filterName !== " " ? collabs.filter((collab) => collab.name.toUpperCase().includes(filterName.toUpperCase())) : collabs
 
 
 
-       const fetch = async () => {
+    const fetch = async () => {
         const { collaborators } = await fetchProject(projectId)
 
 
@@ -63,7 +63,7 @@ export default function AddCollaborators({ onClose, projectId }: AssignmentCreat
     })
 
 
-    console.log(currentIds)
+  
 
 
 
@@ -126,50 +126,43 @@ export default function AddCollaborators({ onClose, projectId }: AssignmentCreat
 
                     <div className="flex items-center gap-2">
                         <Search className="h-4 w-4"></Search>
-                           <Input 
-                           className="h-[25px] w-[200px]"
-                    onChange={handlerChange}
-                    ></Input>
+                        <Input
+                            className="h-[25px] w-[200px]"
+                            onChange={handlerChange}
+                        ></Input>
                     </div>
-                 
+
                 </div>
 
 
-                {isFilter.map((collab) => (
-                    <div className={`flex gap-2 items-center justify-between rounded-sm ${selectdIds.includes(collab.id as string) ? "bg-accent " : ""} ${!collab.isActive || currentIds.includes(collab.id as string)
-                        ? "text-gray-500 cursor-default " : "cursor-pointer"
-                        }
-                    `} key={collab.id} onClick={() => {
-                            if (collab.isActive && !currentIds.includes(collab.id ?? "")) {
-                                toggleSelect(collab.id ? collab.id : "id")
-                            }
+                {isFilter?.map((collab) => {
+                    const alreadyAdded = Array.isArray(currentIds) && currentIds.includes(collab.id ?? "");
+                    const selected = Array.isArray(selectdIds) && selectdIds.includes(collab.id ?? "");
 
-                        }}>
-                        <div className="flex gap-2 items-center p-1">
+                    return (
+                        <div
+                            key={collab.id}
+                            className={`flex gap-2 items-center justify-between rounded-sm 
+        ${selected ? "bg-accent " : ""} 
+        ${!collab.isActive || alreadyAdded ? "text-gray-500 cursor-default " : "cursor-pointer"}
+      `}
+                            onClick={() => {
+                                if (collab.isActive && !alreadyAdded) {
+                                    toggleSelect(collab.id ?? "id");
+                                }
+                            }}
+                        >
+                               <div className="flex gap-2 items-center p-1">
                             <User className="h-4"></User>
                             <h1 className="text-sm">{collab.name}</h1>
                             <div className={`h-2 w-2  rounded-full ${collab.isActive ? "bg-green-300 " : "bg-red-300 "}`}></div>
                         </div>
-
-                        {currentIds.includes(collab.id ?? "") ? (
-                            <p className="text-sm">Já adicionado</p>
-                        ) : null}
-
-
-                        {!collab.isActive ? (
-                            <p className="text-sm">Inativo</p>
-                        ) : null}
-
-                        {!currentIds.includes(collab.id ?? "") && selectdIds.includes(collab.id ?? "") ? (
-                            <div>
-                                <Check className="h-5" />
-                            </div>
-                        ) : null}
-
-
-
-                    </div>
-                ))}
+                            {alreadyAdded && <p className="text-sm">Já adicionado</p>}
+                            {!collab.isActive && <p className="text-sm">Inativo</p>}
+                            {!alreadyAdded && selected && <Check className="h-5" />}
+                        </div>
+                    );
+                })}
 
 
                 <Button onClick={() => {

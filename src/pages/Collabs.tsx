@@ -22,6 +22,7 @@ export default function CollabsDisplay() {
     const [filter_type, setFilter_type] = useState("")
     const [filte_name, setFilter_name] = useState("")
     console.log(filter_type)
+    console.clear()
 
     const HandlerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFilter_name(e.target.value)

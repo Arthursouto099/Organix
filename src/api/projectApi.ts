@@ -120,7 +120,7 @@ export async function fetchProject(projectId: string): Promise<Project> {
     })
 
     const res = await req.json()
-    console.log(res)
+    
     if (req.ok) return res.data
     return {} as Project
 }

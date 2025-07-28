@@ -28,7 +28,8 @@ export default function RemoveCollaborators({ onClose, projectId }: AssignmentCr
     const [currentIds, setCurrentIds] = React.useState<string[]>([])
     const [collabs, setCollabs] = useState<User[]>([])
     const [filterName, setFilterName] = React.useState<string>(" ")
-   
+    console.log(currentIds)
+    console.clear()
 
 
      const isFilter = filterName !== " " ?  collabs.filter((collab) => collab.name.toUpperCase().includes(filterName.toUpperCase()))  : collabs 
@@ -54,7 +55,7 @@ export default function RemoveCollaborators({ onClose, projectId }: AssignmentCr
     })
 
 
-    console.log(currentIds)
+
 
 
 
